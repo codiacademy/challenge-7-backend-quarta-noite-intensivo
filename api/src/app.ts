@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import { userRoutes } from "./routes/userRoutes";
+import  userRoutes  from "./routes/userRoutes";
 import { unitRoutes } from "./routes/unitRoutes";
 import { categoryRoutes } from "./routes/categoryRoutes";
 import { saleRoutes } from "./routes/saleRoutes";
