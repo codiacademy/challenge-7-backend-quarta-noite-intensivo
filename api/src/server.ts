@@ -1,6 +1,5 @@
-import { app } from './app'
-
-
-app.listen({ port: 3000 }).then(() => {
-console.log('Servidor Rodando em : http://localhost:3000')
-})
+import { app } from "./app";
+const port = Number(process.env.PORT ?? 4000);
+app.listen({ port, host: "0.0.0.0" }).then(() => {
+  console.log(`Server running on http://localhost:${port}`);
+});
