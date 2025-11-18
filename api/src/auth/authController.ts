@@ -12,7 +12,12 @@ export class AuthController {
       return reply.status(401).send({ error: "Credenciais inválidas" });
     }
 
-    return reply.send(result);
+    return reply.status(200).send({
+      message: "Login realizado com sucesso",
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: result.user, // sem a senha
+    });
   }
 
   async refresh(req: FastifyRequest, reply: FastifyReply) {
@@ -20,8 +25,12 @@ export class AuthController {
 
     try {
       const data = await authService.refresh(body.refreshToken);
-      return reply.send(data);
-    } catch {
+
+      return reply.status(200).send({
+        message: "Token atualizado",
+        accessToken: data.accessToken,
+      });
+    } catch (err) {
       return reply.status(401).send({ error: "Refresh token inválido" });
     }
   }

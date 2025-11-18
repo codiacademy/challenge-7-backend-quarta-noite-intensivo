@@ -8,6 +8,7 @@ export default async function userRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["Users"],
+        summary: "Cria um novo usuário",
         body: $ref("createUserSchema"),
         response: {
           201: $ref("userResponseSchema"),
@@ -22,6 +23,7 @@ export default async function userRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["Users"],
+        summary: "Lista todos os usuários",
         response: {
           200: $ref("userListResponseSchema"),
         },
@@ -35,6 +37,7 @@ export default async function userRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["Users"],
+        summary: "Busca um usuário por ID",
         params: $ref("userIdParamSchema"),
         response: {
           200: $ref("userResponseSchema"),
@@ -49,6 +52,7 @@ export default async function userRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["Users"],
+        summary: "Atualiza um usuário pelo ID",
         params: $ref("userIdParamSchema"),
         body: $ref("updateUserSchema"),
         response: {
@@ -64,7 +68,14 @@ export default async function userRoutes(app: FastifyInstance) {
     {
       schema: {
         tags: ["Users"],
+        summary: "Remove um usuário pelo ID",
         params: $ref("userIdParamSchema"),
+        response: {
+          204: {
+            type: "null",
+            description: "Usuário removido com sucesso",
+          },
+        },
       },
     },
     userController.remove

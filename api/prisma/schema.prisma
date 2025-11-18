@@ -16,7 +16,7 @@ model User {
   expenses  Expense[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  role     Role   @default(USER)
+  role      Role     @default(USER)
 }
 
 model Unit {
@@ -33,8 +33,8 @@ model Category {
   id        Int      @id @default(autoincrement())
   name      String
   expenses  Expense[]
+  sales     Sale[]   @relation("CategorySales")
   createdAt DateTime @default(now())
-  sales    Sale[]
 }
 
 model Sale {
@@ -47,13 +47,14 @@ model Sale {
   unitPrice  Float
   totalPrice Float
   date       DateTime
-  unit       Unit     @relation(fields: [unitId], references: [id])
-  category   Category? @relation(fields: [categoryId], references: [id])
-  user       User?    @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
 
+  unit       Unit       @relation(fields: [unitId], references: [id])
+  category   Category?  @relation("CategorySales", fields: [categoryId], references: [id])
+  user       User?      @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
 
 model Expense {
   id         Int      @id @default(autoincrement())
@@ -63,9 +64,17 @@ model Expense {
   description String?
   amount     Float
   date       DateTime
-  unit       Unit     @relation(fields: [unitId], references: [id])
-  category   Category @relation(fields: [categoryId], references: [id])
-  user       User?    @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+
+  unit       Unit      @relation(fields: [unitId], references: [id])
+  category   Category  @relation(fields: [categoryId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  USER
 }

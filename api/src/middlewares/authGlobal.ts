@@ -8,7 +8,7 @@ const PUBLIC_ROUTES = [
 ];
 
 export async function authGlobal(request: FastifyRequest, reply: FastifyReply) {
-  // Permitir rotas públicas
+  // Permite rotas públicas (sem autenticação)
   if (PUBLIC_ROUTES.some((route) => request.url.startsWith(route))) {
     return;
   }
@@ -21,13 +21,18 @@ export async function authGlobal(request: FastifyRequest, reply: FastifyReply) {
 
   const token = authHeader.split(" ")[1];
 
+  if (!token) {
+    return reply.status(401).send({ error: "Token mal formatado" });
+  }
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
-    request.user = decoded as {
-      id: string;
-      email: string;
-      role: string;
+    // Tipagem correta do usuário no Fastify
+    request.user = {
+      id: (decoded as any).id,
+      email: (decoded as any).email,
+      role: (decoded as any).role,
     };
   } catch (err) {
     return reply.status(401).send({ error: "Token inválido" });
