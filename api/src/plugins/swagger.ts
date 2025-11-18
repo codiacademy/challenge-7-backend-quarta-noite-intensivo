@@ -1,18 +1,29 @@
 import { FastifyInstance } from "fastify";
-import fp from "fastify-plugin";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 
-export default fp(async function swaggerPlugin(app: FastifyInstance) {
+export default async function swaggerPlugin(app: FastifyInstance) {
   await app.register(swagger, {
-    openapi: {
+    swagger: {
       info: {
-        title: "API Documentation",
-        description: "Documentação gerada automaticamente via Swagger",
+        title: "API CODI",
+        description: "Documentação oficial da API CODI",
         version: "1.0.0",
       },
-      servers: [
-        { url: "http://localhost:3000", description: "Servidor Local" }
+      consumes: ["application/json"],
+      produces: ["application/json"],
+      securityDefinitions: {
+        BearerAuth: {
+          type: "apiKey",
+          name: "Authorization",
+          in: "header",
+          description: "Use: Bearer {token}",
+        },
+      },
+      security: [
+        {
+          BearerAuth: [],
+        },
       ],
     },
   });
@@ -20,10 +31,8 @@ export default fp(async function swaggerPlugin(app: FastifyInstance) {
   await app.register(swaggerUI, {
     routePrefix: "/docs",
     uiConfig: {
-      docExpansion: "list",
-      deepLinking: true,
+      docExpansion: "full",
+      deepLinking: false,
     },
   });
-
-  app.log.info("📄 Swagger configurado em /docs");
-});
+}

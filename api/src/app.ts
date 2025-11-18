@@ -1,23 +1,30 @@
 import Fastify from "fastify";
-import cors from "@fastify/cors";
-import { errorHandler } from "./middlewares/errorHandler";
-import  userRoutes  from "./routes/userRoutes";
-import { unitRoutes } from "./routes/unitRoutes";
-import { categoryRoutes } from "./routes/categoryRoutes";
-import { saleRoutes } from "./routes/saleRoutes";
-import { expenseRoutes } from "./routes/expenseRoutes";
-import { authRoutes } from "./auth/authRoutes";
+import swaggerPlugin from "./plugins/swagger";
 
-export const app = Fastify({ logger: true });
+import userRoutes from "./routes/userRoutes";
+import {saleRoutes} from "./routes/saleRoutes";
+import {unitRoutes} from "./routes/unitRoutes";
+import {expenseRoutes} from "./routes/expenseRoutes";
+import {categoryRoutes} from "./routes/categoryRoutes";
 
-app.register(cors, { origin: true });
+// Middlewares globais
+import { authGlobal } from "./middlewares/authGlobal";
 
-app.setErrorHandler(errorHandler as any);
+const app = Fastify({
+  logger: true,
+});
 
-// register routes 
-app.register(userRoutes, { prefix: "/api/v1/auth" });
-app.register(unitRoutes, { prefix: "/api/v1/auth" });
-app.register(categoryRoutes, { prefix: "/api/v1/auth" });
-app.register(saleRoutes, { prefix: "/api/v1/auth" });
-app.register(expenseRoutes, { prefix: "/api/v1/auth" });
-app.register(authRoutes, { prefix: "/api/v1/auth" });
+// REGISTRO DOS PLUGINS
+app.register(swaggerPlugin);
+
+// MIDDLEWARE GLOBAL (todas rotas privadas)
+app.addHook("preHandler", authGlobal);
+
+// ROTAS
+app.register(userRoutes, { prefix: "/users" });
+app.register(saleRoutes, { prefix: "/sales" });
+app.register(unitRoutes, { prefix: "/units" });
+app.register(expenseRoutes, { prefix: "/expenses" });
+app.register(categoryRoutes, { prefix: "/categories" });
+
+export default app;

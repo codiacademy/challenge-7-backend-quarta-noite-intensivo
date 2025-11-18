@@ -1,75 +1,72 @@
 import { FastifyInstance } from "fastify";
-import { PrismaClient } from "@prisma/client";
-import { z } from "zod";
-
-const prisma = new PrismaClient();
+import { userController } from "../controllers/userController";
+import { $ref } from "../schemas/userSchema";
 
 export default async function userRoutes(app: FastifyInstance) {
-  
-  const userBodySchema = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string(),
-  });
-
-  app.post("/", {
-    schema: {
-      tags: ["Users"],
-      summary: "Criar usuário",
-      body: {
-        type: "object",
-        required: ["name", "email", "password"],
-        properties: {
-          name: { type: "string" },
-          email: { type: "string" },
-          password: { type: "string" },
-        }
+  app.post(
+    "/",
+    {
+      schema: {
+        tags: ["Users"],
+        body: $ref("createUserSchema"),
+        response: {
+          201: $ref("userResponseSchema"),
+        },
       },
-      response: {
-        201: {
-          description: "Usuário criado",
-          type: "object",
-          properties: {
-            id: { type: "number" },
-            name: { type: "string" },
-            email: { type: "string" },
-          }
-        }
-      }
-    }
-  }, async (req, reply) => {
-    const data = userBodySchema.parse(req.body);
+    },
+    userController.create
+  );
 
-    const user = await prisma.user.create({
-      data,
-      select: { id: true, name: true, email: true }
-    });
+  app.get(
+    "/",
+    {
+      schema: {
+        tags: ["Users"],
+        response: {
+          200: $ref("userListResponseSchema"),
+        },
+      },
+    },
+    userController.list
+  );
 
-    return reply.code(201).send(user);
-  });
+  app.get(
+    "/:id",
+    {
+      schema: {
+        tags: ["Users"],
+        params: $ref("userIdParamSchema"),
+        response: {
+          200: $ref("userResponseSchema"),
+        },
+      },
+    },
+    userController.find
+  );
 
-  app.get("/", {
-    schema: {
-      tags: ["Users"],
-      summary: "Listar usuários",
-      response: {
-        200: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              id: { type: "number" },
-              name: { type: "string" },
-              email: { type: "string" },
-            }
-          }
-        }
-      }
-    }
-  }, async () => {
-    return prisma.user.findMany({
-      select: { id: true, name: true, email: true }
-    });
-  });
+  app.put(
+    "/:id",
+    {
+      schema: {
+        tags: ["Users"],
+        params: $ref("userIdParamSchema"),
+        body: $ref("updateUserSchema"),
+        response: {
+          200: $ref("userResponseSchema"),
+        },
+      },
+    },
+    userController.update
+  );
 
+  app.delete(
+    "/:id",
+    {
+      schema: {
+        tags: ["Users"],
+        params: $ref("userIdParamSchema"),
+      },
+    },
+    userController.remove
+  );
 }

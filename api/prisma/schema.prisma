@@ -16,6 +16,7 @@ model User {
   expenses  Expense[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  role     Role   @default(USER)
 }
 
 model Unit {

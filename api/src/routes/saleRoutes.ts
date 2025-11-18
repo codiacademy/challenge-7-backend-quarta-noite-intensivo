@@ -1,12 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { SaleController } from "../controllers/saleController";
-
+import { hasRole } from "../middlewares/roles";
 const controller = new SaleController();
-
 export async function saleRoutes(app: FastifyInstance) {
-  app.post("/sales", controller.create.bind(controller));
-  app.get("/sales", controller.list.bind(controller));
-  app.get("/sales/:id", controller.get.bind(controller));
-  app.put("/sales/:id", controller.update.bind(controller));
-  app.delete("/sales/:id", controller.remove.bind(controller));
+  app.post("/", { schema:{ tags:["Sales"], summary:"Create sale", security:[{BearerAuth:[]}] }, preHandler:[hasRole("ADMIN","MANAGER")] }, controller.create.bind(controller));
+  app.get("/", { schema:{ tags:["Sales"], summary:"List sales" } }, controller.list.bind(controller));
+  app.get("/:id", controller.get.bind(controller));
+  app.put("/:id", { preHandler:[hasRole("ADMIN","MANAGER")] }, controller.update.bind(controller));
+  app.delete("/:id", { preHandler:[hasRole("ADMIN")] }, controller.remove.bind(controller));
 }
