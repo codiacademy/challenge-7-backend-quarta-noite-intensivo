@@ -6,33 +6,21 @@ export default async function swaggerPlugin(app: FastifyInstance) {
   await app.register(swagger, {
     swagger: {
       info: {
-        title: "API CODI",
-        description: "Documentação oficial da API CODI",
+        title: "Codi Cash API",
         version: "1.0.0",
+        description: "API documentation for Codi Cash",
       },
       consumes: ["application/json"],
       produces: ["application/json"],
       securityDefinitions: {
-        BearerAuth: {
-          type: "apiKey",
-          name: "Authorization",
-          in: "header",
-          description: "Use: Bearer {token}",
-        },
-      },
-      security: [
-        {
-          BearerAuth: [],
-        },
-      ],
-    },
+        BearerAuth: { type: "apiKey", name: "Authorization", in: "header", description: "Bearer {token}" }
+      }
+    }
   });
 
   await app.register(swaggerUI, {
-    routePrefix: "/docs",
-    uiConfig: {
-      docExpansion: "full",
-      deepLinking: false,
-    },
+    routePrefix: "/api/v1/docs",
+    uiConfig: { docExpansion: "full" },
+    staticCSP: true,
   });
 }

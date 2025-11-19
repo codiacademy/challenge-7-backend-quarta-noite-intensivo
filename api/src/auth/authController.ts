@@ -1,39 +1,41 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { authService } from "./authService";
-import { loginSchema, refreshSchema } from "./schemas";
+import prisma from "../utils/prisma";
+import { comparePassword } from "../utils/hash";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
+import jwt from "jsonwebtoken";
+import { env } from "../utils/env";
 
-export class AuthController {
-  async login(req: FastifyRequest, reply: FastifyReply) {
-    const body = loginSchema.parse(req.body);
+export class AuthService {
+  async login(email: string, password: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return null;
 
-    const result = await authService.login(body.email, body.password);
+    const valid = await comparePassword(password, user.password);
+    if (!valid) return null;
 
-    if (!result) {
-      return reply.status(401).send({ error: "Credenciais inválidas" });
-    }
+    const { password: _, ...userSafe } = user;
 
-    return reply.status(200).send({
-      message: "Login realizado com sucesso",
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      user: result.user, // sem a senha
+    const accessToken = generateAccessToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
     });
+
+    const refreshToken = generateRefreshToken({ id: user.id });
+
+    // Optionally persist refresh token in DB (not implemented here)
+
+    return { accessToken, refreshToken, user: userSafe };
   }
 
-  async refresh(req: FastifyRequest, reply: FastifyReply) {
-    const body = refreshSchema.parse(req.body);
-
+  async refresh(token: string) {
     try {
-      const data = await authService.refresh(body.refreshToken);
-
-      return reply.status(200).send({
-        message: "Token atualizado",
-        accessToken: data.accessToken,
-      });
-    } catch (err) {
-      return reply.status(401).send({ error: "Refresh token inválido" });
+      const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number };
+      const newAccess = generateAccessToken({ id: decoded.id });
+      return { accessToken: newAccess };
+    } catch {
+      throw new Error("Invalid refresh token");
     }
   }
 }
 
-export const authController = new AuthController();
+export const authService = new AuthService();

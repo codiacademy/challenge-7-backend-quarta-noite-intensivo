@@ -1,38 +1,33 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
+import { env } from "../utils/env";
 
 const PUBLIC_ROUTES = [
-  "/auth/login",
-  "/docs",
-  "/docs/json",
+  "/api/v1/auth/login",
+  "/api/v1/auth/refresh",
+  "/api/v1/docs",
+  "/api/v1/docs/json",
 ];
 
 export async function authGlobal(request: FastifyRequest, reply: FastifyReply) {
-  // Permite rotas públicas (sem autenticação)
-  if (PUBLIC_ROUTES.some((route) => request.url.startsWith(route))) {
-    return;
-  }
+  // Allow public routes
+  if (PUBLIC_ROUTES.some((r) => request.url.startsWith(r))) return;
 
   const authHeader = request.headers.authorization;
+  if (!authHeader) return reply.status(401).send({ error: "Token não fornecido" });
 
-  if (!authHeader) {
-    return reply.status(401).send({ error: "Token não fornecido" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  if (!token) {
+  const parts = authHeader.split(" ");
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
     return reply.status(401).send({ error: "Token mal formatado" });
   }
+  const token = parts[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-
-    // Tipagem correta do usuário no Fastify
+    const decoded = jwt.verify(token, env.JWT_SECRET) as { id: number; email?: string; role?: string };
     request.user = {
-      id: (decoded as any).id,
-      email: (decoded as any).email,
-      role: (decoded as any).role,
+      id: decoded.id,
+      email: decoded.email ?? "",
+      role: decoded.role ?? "USER",
     };
   } catch (err) {
     return reply.status(401).send({ error: "Token inválido" });

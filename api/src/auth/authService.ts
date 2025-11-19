@@ -1,20 +1,17 @@
 import prisma from "../utils/prisma";
-import bcrypt from "bcryptjs";
-import { 
-  generateAccessToken, 
-  generateRefreshToken 
-} from "../utils/generateToken";
+import { comparePassword } from "../utils/hash";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken";
 import jwt from "jsonwebtoken";
+import { env } from "../utils/env";
 
 export class AuthService {
   async login(email: string, password: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return null;
 
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) return null;
+    const valid = await comparePassword(password, user.password);
+    if (!valid) return null;
 
-    // Remover password do retorno
     const { password: _, ...userSafe } = user;
 
     const accessToken = generateAccessToken({
@@ -23,26 +20,19 @@ export class AuthService {
       role: user.role,
     });
 
-    const refreshToken = generateRefreshToken({
-      id: user.id,
-    });
+    const refreshToken = generateRefreshToken({ id: user.id });
+
+    // Optionally persist refresh token in DB (not implemented here)
 
     return { accessToken, refreshToken, user: userSafe };
   }
 
-  async refresh(refreshToken: string) {
+  async refresh(token: string) {
     try {
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET as string
-      ) as { id: number };
-
-      const newAccessToken = generateAccessToken({
-        id: decoded.id,
-      });
-
-      return { accessToken: newAccessToken };
-    } catch (err) {
+      const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number };
+      const newAccess = generateAccessToken({ id: decoded.id });
+      return { accessToken: newAccess };
+    } catch {
       throw new Error("Invalid refresh token");
     }
   }

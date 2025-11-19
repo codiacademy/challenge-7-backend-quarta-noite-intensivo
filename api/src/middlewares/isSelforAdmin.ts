@@ -1,24 +1,18 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export function isSelfOrAdmin() {
-  return async function (req: FastifyRequest, reply: FastifyReply) {
-    const user = req.user; // preenchido pelo authenticate()
-    const targetId = req.params?.id; // ID vindo da rota
+  return async (request: FastifyRequest, reply: FastifyReply) => {
+    const user = request.user;
+    const targetId = (request.params as any)?.id;
+    if (!user) return reply.status(401).send({ error: "Unauthorized" });
 
-    if (!user) {
-      return reply.status(401).send({ error: "Unauthorized" });
-    }
+    if (user.role === "ADMIN") return;
 
-    // Admin pode fazer tudo
-    if (user.role === "admin") {
-      return;
-    }
+    if (!targetId) return reply.status(400).send({ error: "Missing param id" });
 
-    // Usuário comum só pode mexer nele mesmo
-    if (user.id !== targetId) {
-      return reply.status(403).send({
-        error: "Forbidden: You can only manage your own account.",
-      });
+    // params are strings; user.id is number
+    if (Number(targetId) !== Number(user.id)) {
+      return reply.status(403).send({ error: "Forbidden: You can only manage your own account." });
     }
   };
 }

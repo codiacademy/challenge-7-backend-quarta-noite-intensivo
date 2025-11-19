@@ -76,5 +76,6 @@ model Expense {
 enum Role {
   ADMIN
   MANAGER
+  ACCOUNTANT
   USER
 }
