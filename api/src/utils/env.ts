@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== "production") {
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(4000),
   DATABASE_URL: z.string().nonempty(),
   JWT_SECRET: z.string().min(10),
   JWT_REFRESH_SECRET: z.string().min(10),
@@ -28,8 +28,8 @@ export const env = {
   NODE_ENV: _env.data.NODE_ENV,
   PORT: _env.data.PORT,
   DATABASE_URL: _env.data.DATABASE_URL,
-  JWT_SECRET: _env.data.JWT_SECRET,
-  JWT_REFRESH_SECRET: _env.data.JWT_REFRESH_SECRET,
+  JWT_SECRET: _env.data.JWT_SECRET as string,
+  JWT_REFRESH_SECRET: _env.data.JWT_REFRESH_SECRET as string,
   JWT_EXPIRES_IN: _env.data.JWT_EXPIRES_IN,
   JWT_REFRESH_EXPIRES_IN: _env.data.JWT_REFRESH_EXPIRES_IN,
 };

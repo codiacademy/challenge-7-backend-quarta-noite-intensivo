@@ -20,7 +20,9 @@ export class AuthService {
       role: user.role,
     });
 
-    const refreshToken = generateRefreshToken({ id: user.id });
+    const refreshToken = generateRefreshToken({ id: user.id, 
+       email: user.email, role: user.role,
+    });
 
     // Optionally persist refresh token in DB (not implemented here)
 
@@ -29,11 +31,11 @@ export class AuthService {
 
   async refresh(token: string) {
     try {
-      const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number };
-      const newAccess = generateAccessToken({ id: decoded.id });
+      const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number; email: string; role: string };
+      const newAccess = generateAccessToken({ id: decoded.id, email: decoded.email, role: decoded.role });
       return { accessToken: newAccess };
     } catch {
-      throw new Error("Invalid refresh token");
+      throw new Error("Token de refresh inválido");
     }
   }
 }

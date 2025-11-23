@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Role } from "@prisma/client";
+import { Role } from "./Roles";
 
 export function authorizeRole(...allowedRoles: Role[]) {
   return async (req: FastifyRequest, reply: FastifyReply) => {
@@ -7,7 +7,7 @@ export function authorizeRole(...allowedRoles: Role[]) {
       const user = req.user;
 
       if (!user) {
-        return reply.status(401).send({ error: "Unauthorized" });
+        return reply.status(401).send({ error: "Não Autorizado" });
       }
 
       if (!allowedRoles.includes(user.role)) {

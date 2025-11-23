@@ -15,10 +15,10 @@ async function start() {
   // 🔥 Rotas
   app.register(userRoutes, { prefix: "/users" });
 
-  app.listen({ port: 3000 }, (err) => {
+  app.listen({ port: 4000 }, (err) => {
     if (err) throw err;
-    console.log("🚀 Backend rodando em http://localhost:3000");
-    console.log("📄 Swagger em http://localhost:3000/docs");
+    console.log("🚀 Backend rodando em http://localhost:4000");
+    console.log("📄 Swagger em http://localhost:4000/docs");
   });
 }
 

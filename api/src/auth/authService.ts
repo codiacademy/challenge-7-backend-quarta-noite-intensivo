@@ -30,7 +30,11 @@ export class AuthService {
   async refresh(token: string) {
     try {
       const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number };
-      const newAccess = generateAccessToken({ id: decoded.id });
+      const newAccess = generateAccessToken({
+        id: decoded.id,
+        email: "",
+        role: ""
+      });
       return { accessToken: newAccess };
     } catch {
       throw new Error("Invalid refresh token");

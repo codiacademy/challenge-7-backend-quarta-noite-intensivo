@@ -1,16 +1,24 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { env } from "./env";
 
-type JWTPayload = Record<string, any>;
-
-export function generateAccessToken(payload: JWTPayload) {
-  return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
-  });
+export interface JwtPayload {
+  id: number;
+  email?: string;
+  role?: string;
 }
 
-export function generateRefreshToken(payload: JWTPayload) {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
-  });
+export function generateAccessToken(payload: JwtPayload) {
+  const options: SignOptions = {
+    expiresIn: "15m",
+  };
+
+  return jwt.sign(payload, env.JWT_SECRET, options);
+}
+
+export function generateRefreshToken(payload: { id: number }) {
+  const options: SignOptions = {
+    expiresIn: "7d",
+  };
+
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, options);
 }

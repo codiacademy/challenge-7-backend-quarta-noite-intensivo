@@ -21,8 +21,9 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
 
     // Anexa os dados ao request
     request.user = {
-      id: decoded.userId,
+      id: Number(decoded.userId),
       role: decoded.role,
+      email: "", 
     };
 
   } catch (err) {
