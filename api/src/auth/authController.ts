@@ -6,11 +6,14 @@ import { env } from "../utils/env";
 
 export class AuthService {
   async login(email: string, password: string) {
+    
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user) 
       return null;
 
     const valid = await comparePassword(password, user.password);
+
     if (!valid) 
       return null;
 
@@ -22,9 +25,8 @@ export class AuthService {
       role: user.role,
     });
 
-    const refreshToken = generateRefreshToken({ id: user.id, 
-       email: user.email, role: user.role,
-    });
+    const refreshToken = generateRefreshToken({ id: user.id,}); 
+    
 
     // Optionally persist refresh token in DB (not implemented here)
 

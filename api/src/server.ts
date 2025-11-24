@@ -1,13 +1,10 @@
-import Fastify from "fastify";
-import swaggerPlugin from "./plugins/swagger";
+import SwaggerPlugin from "./plugins/swagger";
 import { authGlobal } from "./middlewares/authGlobal";
-
 import userRoutes from "./routes/userRoutes";
-
-const app = Fastify({ logger: true });
+import app from "./app";
 
 async function start() {
-  await app.register(swaggerPlugin);
+  await app.register(SwaggerPlugin);
 
   // 🔥 Middleware global aplicado a TODAS as rotas
   app.addHook("onRequest", authGlobal);

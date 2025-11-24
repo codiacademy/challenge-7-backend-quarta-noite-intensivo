@@ -1,4 +1,4 @@
-import prisma from "../src/utils/prisma";
+import prisma from "../utils/prisma";
 
 beforeAll(async () => {
   // Limpar tabelas antes dos testes
