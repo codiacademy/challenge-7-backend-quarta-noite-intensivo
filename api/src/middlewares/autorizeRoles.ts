@@ -12,13 +12,13 @@ export function authorizeRole(...allowedRoles: Role[]) {
 
       if (!allowedRoles.includes(user.role)) {
         return reply.status(403).send({
-          error: "Forbidden — insufficient permissions",
+          error: "Forbidden — permissões insuficientes",
           required: allowedRoles,
           userRole: user.role,
         });
       }
     } catch (error) {
-      return reply.status(500).send({ error: "Authorization middleware error" });
+      return reply.status(500).send({ error: "Erro no middleware" });
     }
   };
 }

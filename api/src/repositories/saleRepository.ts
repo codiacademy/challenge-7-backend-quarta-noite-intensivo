@@ -5,7 +5,8 @@ export class SaleRepository {
   findAll(filter?: any) {
     const where:any = {};
     if(filter?.unitId) where.unitId = filter.unitId;
-    if(filter?.from || filter?.to){ where.date = {}; if(filter.from) where.date.gte = filter.from; if(filter.to) where.date.lte = filter.to; }
+    if(filter?.from || filter?.to){ where.date = {}; if(filter.from) where.date.gte = filter.from;
+    if(filter.to) where.date.lte = filter.to; }
     return prisma.sale.findMany({ where, orderBy:{ date: "desc" } });
   }
   findById(id:number){ return prisma.sale.findUnique({ where: { id } }); }

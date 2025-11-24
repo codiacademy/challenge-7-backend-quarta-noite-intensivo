@@ -12,7 +12,7 @@ export function isSelfOrAdmin() {
 
     // params are strings; user.id is number
     if (Number(targetId) !== Number(user.id)) {
-      return reply.status(403).send({ error: "Forbidden: You can only manage your own account." });
+      return reply.status(403).send({ error: "Forbidden: Você só pode administrar SUA conta" });
     }
   };
 }
