@@ -10,7 +10,7 @@
     "rootDir": "src",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vitest"],
+    "types": ["node", "vitest", "Mocha"],
     "noImplicitAny": false
   },
   "include": ["src", "tests"],

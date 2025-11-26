@@ -1,6 +1,7 @@
 import { ExpenseRepository } from "../repositories/expenseRepository";
 const repo = new ExpenseRepository();
 export class ExpenseService {
+  
   async create(data:any){
    const date = data.date ? new Date(data.date) : new Date();
     return repo.create({ ...data, date }); }

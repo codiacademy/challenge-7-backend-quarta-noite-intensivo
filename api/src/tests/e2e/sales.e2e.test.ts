@@ -12,11 +12,31 @@ beforeAll(async () => {
   await setupTestDB();
   app = await build();
 
-  const admin = await prisma.user.findUnique({ where: { email: "admin@test.local" } });
-  adminToken = generateAccessToken({ userId: admin!.id, role: admin!.role });
+  // garante admin
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@test.local" },
+    update: {},
+    create: {
+      name: "Admin",
+      email: "admin@test.local",
+      password: "hashed",
+      role: "ADMIN",
+    },
+  });
 
-  const unit = await prisma.unit.findFirst();
-  unitId = unit!.id;
+  adminToken = generateAccessToken({ userId: admin.id, role: admin.role });
+
+  // garante unit
+  const unit = await prisma.unit.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: "Unidade Teste",
+    },
+  });
+
+  unitId = unit.id;
 });
 
 afterAll(async () => {
@@ -40,6 +60,7 @@ describe("Sales unit", () => {
     });
 
     expect(res.statusCode).toBe(201);
+
     const body = res.json();
     expect(body).toHaveProperty("id");
     expect(body.totalPrice).toBe(1000);
@@ -51,7 +72,8 @@ describe("Sales unit", () => {
       url: `/sales?unitId=${unitId}`,
       headers: { Authorization: `Bearer ${adminToken}` },
     });
+
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.json())).toBeTruthy();
+    expect(Array.isArray(res.json())).toBe(true);
   });
 });

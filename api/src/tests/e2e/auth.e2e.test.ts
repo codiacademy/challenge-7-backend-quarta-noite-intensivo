@@ -1,5 +1,6 @@
 import request from "supertest";
-import app from "../../src/app";
+import app from "../../app";
+import {describe, it, expect } from "vitest";
 
 describe("Auth E2E", () => {
   it("should create a user and login", async () => {

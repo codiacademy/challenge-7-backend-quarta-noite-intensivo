@@ -1,13 +1,16 @@
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 import { env } from "./env";
 
-export interface JwtPayload {
+export interface jwtPayload {
   id: number;
   email?: string;
-  role?: string;
+}
+export interface AccessTokenPayload extends JwtPayload{
+  userId: number;
+  role: string;
 }
 
-export function generateAccessToken(payload: JwtPayload) {
+export function generateAccessToken(payload: JwtPayload,) {
   const options: SignOptions = {
     expiresIn: "15m",
   };
