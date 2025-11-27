@@ -11,15 +11,18 @@ export class UnitController {
   async list(_req: FastifyRequest, reply: FastifyReply) {
      return reply.send(await service.list());
      }
+     
   async get(req: FastifyRequest, reply: FastifyReply) {
      const id = Number((req.params as any).id);
       return reply.send(await service.get(id));
      }
+
   async update(req: FastifyRequest, reply: FastifyReply){ 
     const id = Number((req.params as any).id); 
     const body = req.body as any; 
     return reply.send(await service.update(id, body)); 
   }
+
   async remove(req: FastifyRequest, reply: FastifyReply) { 
     const id = Number((req.params as any).id);
      await service.delete(id);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { userController } from "../../src/controllers/userController";
-import { prismaMock } from "../mocks/prismaMock";
+import { userController } from "../../controllers/userController";
+import { prismaMock } from "../../mocks/prismaMock";
 
 vi.mock("../../src/utils/prisma", () => ({
   default: prismaMock,

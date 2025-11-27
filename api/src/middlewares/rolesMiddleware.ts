@@ -10,7 +10,7 @@ export function hasRole(...allowedRoles: string[]) {
     // Verifica se o usuário está autenticado
     if (!request.user) {
       return reply.status(401).send({
-        error: "Usuário não autenticado",
+        error: "Usuário não autenticado ou não encontrado",
       });
     }
 

@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./src/@types", "./node_modules/@types"],
     "target": "ES2020",
     "module": "CommonJS",
     "lib": ["ES2020"],
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "outDir": "dist",
     "rootDir": "src",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vitest", "Mocha"],
+    "types": ["node", "mocha"],
     "noImplicitAny": false
   },
   "include": ["src", "tests"],

@@ -22,8 +22,6 @@ export class AuthService {
 
     const refreshToken = generateRefreshToken({ id: user.id });
 
-    // Optionally persist refresh token in DB (not implemented here)
-
     return { accessToken, refreshToken, user: userSafe };
   }
 

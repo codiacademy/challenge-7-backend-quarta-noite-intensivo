@@ -22,12 +22,9 @@ export async function authGlobal(request: FastifyRequest, reply: FastifyReply) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    
+    request.user = decoded as { id: number; email: string; role: string; };
 
-    request.user = decoded as {
-      id: number;
-      email: string;
-      role: string;
-    };
   } catch (err) {
     return reply.status(401).send({ error: "Token inválido" });
   }

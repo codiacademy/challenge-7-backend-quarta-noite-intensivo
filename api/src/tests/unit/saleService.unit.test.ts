@@ -12,8 +12,8 @@ vi.mock("../src/utils/prisma", () => {
   };
 });
 
-import prisma from "../src/utils/prisma";
-import { /* if you have saleService, import it */ } from "../src/modules/sales/sale.service";
+import prisma from "../../utils/prisma";
+
 
 describe("Sale service (unit)", () => {
   beforeEach(() => {

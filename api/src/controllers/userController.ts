@@ -3,9 +3,11 @@ import prisma from "../utils/prisma";
 import { hashPassword } from "../utils/hash";
 
 export const userController = {
+  
   async create(req: FastifyRequest, reply: FastifyReply) {
+    
     const body = req.body as any;
-    // minimal validation (schemas ideally)
+    // validação minima (idealmente schemas)
     if (!body.name || !body.email || !body.password) {
       return reply.status(400).send({ error: "Campos obrigatórios ausentes" });
     }
@@ -25,7 +27,6 @@ export const userController = {
 
       return reply.status(201).send(user);
     } catch (err: any) {
-      // Prisma error handler will catch but we still handle
       if (err.code === "P2002") return reply.status(409).send({ error: "Email já registrado" });
       throw err;
     }
@@ -40,7 +41,7 @@ export const userController = {
     const id = Number((req.params as any).id);
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return reply.status(404).send({ error: "User not found" });
-    // don't return password
+    // não retorna a senha
     const { password: _, ...u } = user as any;
     return reply.send(u);
   },
@@ -50,9 +51,7 @@ export const userController = {
     const body = req.body as any;
     if (body.password) body.password = await hashPassword(body.password);
     const updated = await prisma.user.update({
-      where: { id },
-      data: body,
-      select: { id: true, name: true, email: true, role: true, updatedAt: true },
+      where: { id },data: body,select: { id: true, name: true, email: true, role: true, updatedAt: true },
     });
     return reply.send(updated);
   },

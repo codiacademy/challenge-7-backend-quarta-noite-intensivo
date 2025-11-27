@@ -1,10 +1,9 @@
 // tests/middlewares.unit.test.ts
 import { describe, it, expect, vi } from "vitest";
 import jwt from "jsonwebtoken";
-import { env } from "../src/env";
-
-import { hasRole } from "../src/middlewares/hasRole";
-import { authGlobal } from "../src/middlewares/authGlobal";
+import { env } from "../../utils/env";
+import { hasRole } from "../../middlewares/hasRole";
+import { authGlobal } from "../../middlewares/authGlobal";
 
 describe("Middlewares unit", () => {
   it("hasRole denies when user missing", async () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateAccessToken } from "../../src/utils/generateToken";
+import { generateAccessToken } from "../../utils/generateToken";
 
 describe("generateToken", () => {
   it("should create a valid jwt token", () => {

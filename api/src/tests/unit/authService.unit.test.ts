@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { authService } from "../../src/auth/authService";
-import { prismaMock } from "../mocks/prismaMock";
+import { authService } from "../../auth/authService";
+import { prismaMock } from "../../mocks/prismaMock";
 
 vi.mock("../../src/utils/prisma", () => ({
   default: prismaMock,
