@@ -4,13 +4,14 @@ import { ExpenseService } from "../services/expenseService";
 const service = new ExpenseService();
 
 export class ExpenseController {
+  
   async create(req:FastifyRequest, reply:FastifyReply){ 
     const body = req.body as any; 
     const e = await service.create(body); 
     return reply.code(201).send(e); 
   }
   
-    async list(req:FastifyRequest, reply:FastifyReply){ 
+  async list(req:FastifyRequest, reply:FastifyReply){ 
     const q = req.query as any;
     const filter:any={}; 
     if(q.unitId) filter.unitId = Number(q.unitId); 

@@ -3,4 +3,6 @@ export const Roles = {
   MANAGER: "MANAGER",
   ACCOUNTANT: "ACCOUNTANT",
   USER: "USER",
-} as const;
+} as const ;
+
+export type Role = typeof Roles[keyof typeof Roles];

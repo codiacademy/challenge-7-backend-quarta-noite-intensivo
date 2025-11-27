@@ -1,10 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { verifyToken } from "./verifyToken";
 
-export async function authGuard(
-  req: FastifyRequest,
-  reply: FastifyReply
-) {
+export async function authGuard(req: FastifyRequest,reply: FastifyReply) {
   const header = req.headers.authorization;
 
   if (!header || !header.startsWith("Bearer ")) {
@@ -19,7 +16,6 @@ export async function authGuard(
     return reply.status(401).send({ error: "Token inválido" });
   }
 
-  // Disponibiliza o userId dentro da request
   // @ts-ignore
   req.user = decoded;
 

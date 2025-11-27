@@ -1,22 +1,20 @@
-import Fastify from "fastify";
-import swaggerPlugin from "./plugins/swagger";
+import SwaggerPlugin from "./plugins/swagger";
 import { authGlobal } from "./middlewares/authGlobal";
-
 import userRoutes from "./routes/userRoutes";
-
-const app = Fastify({ logger: true });
+import app from "./app";
 
 async function start() {
-  await app.register(swaggerPlugin);
+  await app.register(SwaggerPlugin);
 
   // 🔥 Middleware global aplicado a TODAS as rotas
   app.addHook("onRequest", authGlobal);
 
   // 🔥 Rotas
-  app.register(userRoutes, { prefix: "/users" });
+  app.register(userRoutes, { prefix: "/api/v1/users" });
 
   app.listen({ port: 4000 }, (err) => {
-    if (err) throw err;
+    if (err) 
+      throw err;
     console.log("🚀 Backend rodando em http://localhost:4000");
     console.log("📄 Swagger em http://localhost:4000/docs");
   });

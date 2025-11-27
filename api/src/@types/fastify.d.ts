@@ -1,8 +1,8 @@
 import "fastify";
 
 declare module "fastify" {
-  interface FastifyRequest {
-    user?: {
+interface FastifyRequest {
+    user: {
       id: number;
       email: string;
       role: string;

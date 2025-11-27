@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { userController } from "../controllers/userController";
 import { hasRole } from "../middlewares/hasRole";
-import { isSelfOrAdmin } from "../middlewares/isSelfOrAdmin";
+import { isSelfOrAdmin } from ".././middlewares/isSelforAdmin";
 
 export default async function userRoutes(app: FastifyInstance) {
   app.post("/", { schema: { tags: ["Users"] } }, userController.create); // allow public or restrict by role

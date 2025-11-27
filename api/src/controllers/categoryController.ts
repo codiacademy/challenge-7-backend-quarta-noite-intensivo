@@ -4,6 +4,7 @@ import { CategoryService } from "../services/categoryService";
 const service = new CategoryService();
 
 export class CategoryController {
+  
   async create(req:FastifyRequest, reply:FastifyReply){
      const body = req.body as any;
      const c = await service.create(body); 

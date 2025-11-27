@@ -4,6 +4,7 @@ import { SaleService } from "../services/saleService";
 const service = new SaleService();
 
 export class SaleController {
+  
   async create(req:FastifyRequest, reply:FastifyReply){
      const body = req.body as any;
      const s = await service.create(body);

@@ -12,7 +12,11 @@ export const updateUserSchema = z.object({
   name: z.string().min(2).optional(),
   email: z.string().email().optional(),
   role: z.enum(["admin", "manager", "accountant"]).optional(),
+  password: z.string().min(6),
 });
+
+export type CreateUserDTO = z.infer<typeof createUserSchema>;
+export type UpdateUserDTO = z.infer<typeof updateUserSchema>;
 
 export const userResponseSchema = z.object({
   id: z.string().uuid(),
