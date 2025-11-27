@@ -1,8 +1,7 @@
-// src/env.ts
 import * as dotenv from "dotenv";
 import { z } from "zod";
 
-// Carrega .env em desenvolvimento (quando estiver usando docker/production, as vars normalmente já estarão definidas)
+
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }

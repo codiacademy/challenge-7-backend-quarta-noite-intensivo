@@ -11,7 +11,8 @@ export class ExpenseService {
 
   async get(id:number){ 
     const e = await repo.findById(id); 
-    if(!e) throw Object.assign(new Error("Expense not found"), { statusCode:404 });
+    if(!e) 
+      throw Object.assign(new Error("Expense not found"), { statusCode:404 });
      return e; }
 
   async update(id:number,data:any){ 

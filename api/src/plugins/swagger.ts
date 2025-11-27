@@ -13,7 +13,10 @@ export default async function swaggerPlugin(app: FastifyInstance) {
       consumes: ["application/json"],
       produces: ["application/json"],
       securityDefinitions: {
-        BearerAuth: { type: "apiKey", name: "Authorization", in: "header", description: "Bearer {token}" }
+        BearerAuth: { type: "apiKey",
+           name: "Authorization", 
+           in:"header",
+           description: "Bearer {token}" }
       }
     }
   });
