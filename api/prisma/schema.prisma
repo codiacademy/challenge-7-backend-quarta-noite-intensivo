@@ -65,7 +65,6 @@ model Expense {
   description String?
   amount     Float
   date       DateTime
-
   unit       Unit      @relation(fields: [unitId], references: [id])
   category   Category  @relation(fields: [categoryId], references: [id])
   user       User?     @relation(fields: [userId], references: [id])
