@@ -1,6 +1,5 @@
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB } from "../setup";
-import { build, close } from "../tests-utils";
+import { setupTestDB, closeTestDB} from "../setup";
 import prisma from "../../utils/prisma";
 import { generateAccessToken } from "../../utils/generateToken";
 
@@ -11,7 +10,6 @@ let categoryId: number;
 
 beforeAll(async () => {
   await setupTestDB();
-  app = await build();
 
   const admin = await prisma.user.findUnique({ where: { email: "admin@test.local" } });
   adminToken = generateAccessToken({ userId: admin!.id, role: admin!.role });
@@ -23,15 +21,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
-  await close();
+ await closeTestDB();
 });
 
 describe("Expenses unit", () => {
-  it("POST /expenses creates an expense", async () => {
+  it("POST /api/v1/expenses creates an expense", async () => {
     const res = await app.inject({
       method: "POST",
-      url: "/expenses",
+      url: "/api/v1/expenses",
       headers: { Authorization: `Bearer ${adminToken}` },
       payload: {
         unitId,
@@ -47,10 +44,10 @@ describe("Expenses unit", () => {
     expect(body).toHaveProperty("id");
   });
 
-  it("GET /expenses returns list", async () => {
+  it("GET /api/v1/expenses returns list", async () => {
     const res = await app.inject({
       method: "GET",
-      url: `/expenses?unitId=${unitId}`,
+      url: `/api/v1/expenses?unitId=${unitId}`,
       headers: { Authorization: `Bearer ${adminToken}` },
     });
 

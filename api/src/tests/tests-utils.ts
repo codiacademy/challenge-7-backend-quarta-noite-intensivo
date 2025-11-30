@@ -1,12 +1,14 @@
 // tests/test-utils.ts
-import app from "../app";
+import { buildApp } from "../app";
+
 
 export async function build() {
+  const app = buildApp();
   await app.ready();
-  return app;
+  return app
 }
 
-export async function close() {
+export async function close(app) {
   try {
     await app.close();
   } catch {}

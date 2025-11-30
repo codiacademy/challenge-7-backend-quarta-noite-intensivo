@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
   api:
@@ -7,11 +7,12 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://postgres:postgres@db:5432/codi
+      DATABASE_URL: postgres://postgres:admin123@db:5432/codi?sslmode=disable
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     command: >
       sh -c "
         npx prisma migrate deploy &&
@@ -19,17 +20,22 @@ services:
       "
 
   db:
-    image: postgres:18
+    image: postgres:16
     container_name: codi-db
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: codi
+      POSTGRES_PASSWORD: ADMIN123
+      POSTGRES_DB: codi-db
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   pgdata:

@@ -1,4 +1,3 @@
-// setup.ts
 import prisma from "../utils/prisma";
 
 /**
@@ -6,13 +5,23 @@ import prisma from "../utils/prisma";
  * Pode ser chamada no beforeAll de qualquer suíte de teste.
  */
 export async function setupTestDB() {
-  await prisma.user.deleteMany();
-  await prisma.sale.deleteMany();
-  await prisma.unit.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.expense.deleteMany();
-}
+  await prisma.$transaction([
+    prisma.expense.deleteMany(),
+    prisma.sale.deleteMany(),
+    prisma.unit.deleteMany(),
+    prisma.category.deleteMany(),
+    prisma.user.deleteMany(),
+  ]);
 
+  const admin = await prisma.user.create({
+    data: {
+      name: "Admin",
+      email: "admin@test.local",
+      password: "$2b$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      role: "ADMIN",
+    },
+  });
+}
 export async function closeTestDB() {
   await prisma.$disconnect();
 }

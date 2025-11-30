@@ -8,6 +8,7 @@ import { expenseRoutes } from "./routes/expenseRoutes";
 import { categoryRoutes } from "./routes/categoryRoutes";
 import { authGlobal } from "./middlewares/authGlobal";
 
+export function buildApp() {
 const app = Fastify({ logger: true });
 
 // swagger
@@ -26,4 +27,5 @@ app.register(unitRoutes, { prefix: "/api/v1/units" });
 app.register(expenseRoutes, { prefix: "/api/v1/expenses" });
 app.register(categoryRoutes, { prefix: "/api/v1/categories" });
 
-export default app;
+    return app;
+}

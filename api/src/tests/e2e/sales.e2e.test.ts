@@ -1,6 +1,5 @@
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB } from "../setup";
-import { build, close } from "../tests-utils";
+import { setupTestDB, closeTestDB } from "../setup";
 import prisma from "../../utils/prisma";
 import { generateAccessToken } from "../../utils/generateToken";
 
@@ -10,7 +9,6 @@ let unitId: number;
 
 beforeAll(async () => {
   await setupTestDB();
-  app = await build();
 
   // garante admin
   const admin = await prisma.user.upsert({
@@ -40,15 +38,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
-  await close();
+  await closeTestDB();
 });
 
 describe("Sales unit", () => {
-  it("POST /sales creates a sale", async () => {
+  it("POST /api/v1/sales creates a sale", async () => {
     const res = await app.inject({
       method: "POST",
-      url: "/sales",
+      url: "/api/v1/sales",
       headers: { Authorization: `Bearer ${adminToken}` },
       payload: {
         unitId,
@@ -69,7 +66,7 @@ describe("Sales unit", () => {
   it("GET /sales returns list (filter by unit)", async () => {
     const res = await app.inject({
       method: "GET",
-      url: `/sales?unitId=${unitId}`,
+      url: `/api/v1/sales?unitId=${unitId}`,
       headers: { Authorization: `Bearer ${adminToken}` },
     });
 

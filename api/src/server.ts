@@ -1,6 +1,7 @@
-import app from "./app";
+import { buildApp } from "./app";
 
 async function start() {
+  const app = buildApp();
   app.listen({ port: 4000 }, (err) => {
     if (err) 
       throw err;

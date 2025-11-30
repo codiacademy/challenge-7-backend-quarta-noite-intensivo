@@ -123,6 +123,7 @@ Construído com **Node.js + Fastify + TypeScript + Prisma + PostgreSQL**, seguin
         generateToken.ts
         hash.ts
         prisma.ts
+│       
 ├── compose.yaml
 ├── Dockerfile
 ├── package.json
@@ -155,10 +156,12 @@ cp .env.example .env
 ```
 NODE_ENV=development
 PORT=4000
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/<nome_do_banco>?schema=public"
-JWT_SECRET="sua_chave_super_secreta"
+DATABASE_URL="postgresql://postgres:ADMIN123@localhost:5432/codicash?schema=public"
+JWT_SECRET=secreto123456
+JWT_REFRESH_SECRET=secretorefresh123456
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
+
 ```
 
 ## 4. Rodar migrations
