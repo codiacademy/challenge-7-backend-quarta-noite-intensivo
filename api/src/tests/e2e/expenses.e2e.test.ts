@@ -1,57 +1,60 @@
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB, closeTestDB} from "../setup";
-import prisma from "../../utils/prisma";
+import { describe, beforeAll, afterAll, it, expect } from "vitest";
+import request from "supertest";
+import { buildApp } from "../../app";
+import { setupTestDB, closeTestDB } from "../setup";
 import { generateAccessToken } from "../../utils/generateToken";
 
 let app: any;
+let admin: any;
+let unit: any;
+let category: any;
 let adminToken: string;
-let unitId: number;
-let categoryId: number;
 
-beforeAll(async () => {
-  await setupTestDB();
+describe("Expenses E2E", () => {
 
-  const admin = await prisma.user.findUnique({ where: { email: "admin@test.local" } });
-  adminToken = generateAccessToken({ userId: admin!.id, role: admin!.role });
+  beforeAll(async () => {
+    // prepara banco limpo e insere admin, unit e category
+    const seed = await setupTestDB();
+    admin = seed.admin;
+    unit = seed.unit;
+    category = seed.category;
 
-  const unit = await prisma.unit.findFirst();
-  unitId = unit!.id;
-  const category = await prisma.category.findFirst();
-  categoryId = category!.id;
-});
+    // sobe a aplicação
+    app = await buildApp();
 
-afterAll(async () => {
- await closeTestDB();
-});
-
-describe("Expenses unit", () => {
-  it("POST /api/v1/expenses creates an expense", async () => {
-    const res = await app.inject({
-      method: "POST",
-      url: "/api/v1/expenses",
-      headers: { Authorization: `Bearer ${adminToken}` },
-      payload: {
-        unitId,
-        categoryId,
-        amount: 150,
-        description: "Teste despesa",
-        date: new Date().toISOString(),
-      },
+    // gera token do admin
+    adminToken = generateAccessToken({
+      userId: admin.id,
+      role: admin.role,
     });
-
-    expect(res.statusCode).toBe(201);
-    const body = res.json();
-    expect(body).toHaveProperty("id");
   });
 
-  it("GET /api/v1/expenses returns list", async () => {
-    const res = await app.inject({
-      method: "GET",
-      url: `/api/v1/expenses?unitId=${unitId}`,
-      headers: { Authorization: `Bearer ${adminToken}` },
-    });
+  afterAll(async () => {
+    await closeTestDB();
+    await app.close();
+  });
+
+  it("should create an expense", async () => {
+    const res = await request(app.server)
+      .post("/api/v1/expenses")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        unitId: unit.id,
+        categoryId: category.id,
+        value: 200,
+        date: new Date().toISOString(),
+      });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body).toHaveProperty("id");
+  });
+
+  it("should list expenses", async () => {
+    const res = await request(app.server)
+      .get("/api/v1/expenses")
+      .set("Authorization", `Bearer ${adminToken}`);
 
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.json())).toBeTruthy();
+    expect(Array.isArray(res.body)).toBe(true);
   });
 });

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 
 const PUBLIC_ROUTES = [
-  "/auth/login",
+  "/api/v1/auth/login",
   "/docs",
   "/docs/json",
 ];

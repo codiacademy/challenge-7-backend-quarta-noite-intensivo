@@ -1,9 +1,5 @@
 import prisma from "../utils/prisma";
 
-/**
- * Limpa o banco para um estado inicial.
- * Pode ser chamada no beforeAll de qualquer suíte de teste.
- */
 export async function setupTestDB() {
   await prisma.$transaction([
     prisma.expense.deleteMany(),
@@ -21,7 +17,18 @@ export async function setupTestDB() {
       role: "ADMIN",
     },
   });
+
+  const unit = await prisma.unit.create({
+    data: { name: "Default Unit" },
+  });
+
+  const category = await prisma.category.create({
+    data: { name: "Default Category" },
+  });
+
+  return { admin, unit, category };
 }
+
 export async function closeTestDB() {
   await prisma.$disconnect();
 }

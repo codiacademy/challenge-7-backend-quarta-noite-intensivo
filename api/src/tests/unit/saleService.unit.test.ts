@@ -1,11 +1,20 @@
 // tests/saleService.unit.test.ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("../src/utils/prisma", () => {
+vi.mock("../../utils/prisma", () => {
   return {
     default: {
       sale: {
         create: vi.fn(),
+        findMany: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+      user: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
         findMany: vi.fn(),
       },
     },

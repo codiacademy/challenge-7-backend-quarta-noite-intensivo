@@ -2,7 +2,7 @@ import { FastifyInstance,FastifyReply,FastifyRequest} from "fastify";
 import { authService } from "./authController";
 
 export default async function authRoutes(fastify: FastifyInstance) {
-  fastify.post("/api/v1/auth", async (req: FastifyRequest<{ Body: { email: string; password: string}}>,
+  fastify.post("/", async (req: FastifyRequest<{ Body: { email: string; password: string}}>,
     reply: FastifyReply) => {
       
       const {email, password}= req.body;

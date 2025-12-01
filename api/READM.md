@@ -161,7 +161,6 @@ JWT_SECRET=secreto123456
 JWT_REFRESH_SECRET=secretorefresh123456
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
-
 ```
 
 ## 4. Rodar migrations
