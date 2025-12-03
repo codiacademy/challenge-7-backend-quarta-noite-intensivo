@@ -1,16 +1,16 @@
 import request from "supertest";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { setupTestDB, closeTestDB} from "../setup";
-import { build } from "../tests-utils";
-import prisma from "../../utils/prisma";
+import { build , resetDB } from "../tests-utils";
+import { prisma } from "../../tests/prisma-test-env";
 import { generateAccessToken } from "../../utils/generateToken";
+
 
 describe("Auth E2E", () => {
   let adminToken: string;
   let app:any
 
 beforeAll(async () => {
-    await setupTestDB();
+   app = await build();
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@test.local" },
@@ -18,23 +18,23 @@ beforeAll(async () => {
     create: {
     name: "Admin",
     email: "admin@test.local",
-    password: "hashed", // qualquer string
+    password: "123456",  // qualquer string
     role: "ADMIN"
   }
 });
     adminToken = generateAccessToken({
       userId: admin!.id,
       role: admin!.role,
+      email: admin!.email
     });
   });
 
 afterAll(async () => {
-    await closeTestDB();
+    await app.close();
+    await prisma.$disconnect();
   });  
 
-
   it("should create a user and login", async () => {
-   app = await build();
     await app.ready();
     const res = await request(app.server)
       .post("/api/v1/auth")

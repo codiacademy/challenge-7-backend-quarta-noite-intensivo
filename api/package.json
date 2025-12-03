@@ -2,23 +2,23 @@
   "name": "api",
   "version": "0.1.0",
   "private": true,
-
-"prisma": {
+  "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "start:prod": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts",
-    "test": "vitest",
-    "test:e2e": "vitest run --dir src/tests/e2e --reporter verbose",
-    "test:e2e:watch": "vitest watch --dir src/tests/e2e"
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "start:prod": "node dist/server.js",
+
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev",
+  "prisma:studio": "prisma studio",
+  "prisma:seed": "ts-node prisma/seed.ts",
+
+  "test": "cross-env NODE_ENV=test vitest run",
+  "test:e2e": "cross-env NODE_ENV=test DATABASE_URL=.env.test vitest run"
+
   },
   "dependencies": {
     "@fastify/cors": "^9.0.0",
@@ -38,6 +38,8 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.19.25",
+    "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",

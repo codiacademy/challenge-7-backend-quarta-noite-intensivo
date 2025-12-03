@@ -1,20 +1,18 @@
 /// <reference types="vitest" />
-
 import { defineConfig } from "vitest/config";
-import dotenv from "dotenv";
-
-dotenv.config({ path: ".env" });
+import path from "node:path";
 
 export default defineConfig({
   test: {
+    setupFiles: [path.resolve(__dirname, "src/tests/prisma-test-env.ts")],
     globals: true,
     environment: "node",
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage",
-    }, 
-      sequence: {
-        concurrent: false,
     },
-  }});
-
+    sequence: {
+      concurrent: false,
+    },
+  },
+});

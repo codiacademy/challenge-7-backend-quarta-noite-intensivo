@@ -1,16 +1,17 @@
 import request from "supertest";
 import { beforeAll, expect, afterAll, it } from "vitest";
-import { setupTestDB, closeTestDB } from "../setup";
-import prisma from "../../utils/prisma";
+import {prisma} from "../../tests/prisma-test-env";
 import { generateAccessToken } from "../../utils/generateToken";
-import { build } from "../tests-utils";
+import { build , resetDB } from "../tests-utils";
+
 
 describe("Users E2E", () => {
   let app: any;
   let adminToken: string;
 
   beforeAll(async () => {
-    await setupTestDB();
+    await resetDB();
+    app = await build();
 
    const admin = await prisma.user.upsert({
     where: { email: "admin@test.local" },
@@ -26,13 +27,15 @@ describe("Users E2E", () => {
     adminToken = generateAccessToken({
       userId: admin!.id,
       role: admin!.role,
+      email: admin!.email
     });
 
-    app = await build();   // necessário
+      
   });
 
   afterAll(async () => {
-    await closeTestDB();
+    await app.close();
+    await prisma.$disconnect();
   });
 
   it("should list users", async () => {

@@ -1,34 +1,33 @@
-import prisma from "../utils/prisma";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+
+export const prisma = new PrismaClient();
 
 export async function setupTestDB() {
-  await prisma.$transaction([
-    prisma.expense.deleteMany(),
-    prisma.sale.deleteMany(),
-    prisma.unit.deleteMany(),
-    prisma.category.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
+  // Reseta completamente o banco
+  await prisma.$executeRawUnsafe(`
+    TRUNCATE TABLE
+      "Expense",
+      "Sale",
+      "Unit",
+      "Category",
+      "User"
+    RESTART IDENTITY CASCADE;
+  `);
 
-  const admin = await prisma.user.create({
+  // Cria usuário admin padrão
+  const passwordHash = await bcrypt.hash("123456", 10);
+
+  await prisma.user.create({
     data: {
       name: "Admin",
-      email: "admin@test.local",
-      password: "$2b$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      role: "ADMIN",
-    },
+      email: "admin@admin.com",
+      password: passwordHash,
+      role: "ADMIN"
+    }
   });
-
-  const unit = await prisma.unit.create({
-    data: { name: "Default Unit" },
-  });
-
-  const category = await prisma.category.create({
-    data: { name: "Default Category" },
-  });
-
-  return { admin, unit, category };
 }
 
-export async function closeTestDB() {
+export async function disconnectDB() {
   await prisma.$disconnect();
 }

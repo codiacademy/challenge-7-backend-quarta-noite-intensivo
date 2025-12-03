@@ -1,7 +1,7 @@
 import { describe, beforeAll, afterAll, it, expect } from "vitest";
 import request from "supertest";
-import { buildApp } from "../../app";
-import { setupTestDB, closeTestDB } from "../setup";
+import { build, resetDB } from "../tests-utils";
+import { prisma } from "../../tests/prisma-test-env";
 import { generateAccessToken } from "../../utils/generateToken";
 
 let app: any;
@@ -11,27 +11,34 @@ let category: any;
 let adminToken: string;
 
 describe("Expenses E2E", () => {
-
   beforeAll(async () => {
-    // prepara banco limpo e insere admin, unit e category
-    const seed = await setupTestDB();
-    admin = seed.admin;
-    unit = seed.unit;
-    category = seed.category;
+    await resetDB();
+    app = await build();
 
-    // sobe a aplicação
-    app = await buildApp();
+    admin = await prisma.user.findFirst({
+      where: { email: "admin@admin.com" }
+    });
 
-    // gera token do admin
+    unit = await prisma.unit.create({
+      data: { name: "Default Unit" }
+    });
+
+    category = await prisma.category.create({
+      data: { name: "Default Category" }
+    });
+
     adminToken = generateAccessToken({
       userId: admin.id,
       role: admin.role,
+      email: admin.email
     });
   });
 
   afterAll(async () => {
-    await closeTestDB();
-    await app.close();
+    if (app) {
+      await app.close();
+    }
+    await prisma.$disconnect();
   });
 
   it("should create an expense", async () => {
@@ -42,7 +49,7 @@ describe("Expenses E2E", () => {
         unitId: unit.id,
         categoryId: category.id,
         value: 200,
-        date: new Date().toISOString(),
+        date: new Date().toISOString()
       });
 
     expect(res.statusCode).toBe(201);

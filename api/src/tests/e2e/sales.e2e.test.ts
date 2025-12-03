@@ -1,9 +1,9 @@
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB, closeTestDB } from "../setup";
-import prisma from "../../utils/prisma";
+import { prisma } from "../../tests/prisma-test-env";
 import { generateAccessToken } from "../../utils/generateToken";
-import { build } from "../tests-utils";
+import { build , resetDB } from "../tests-utils";
 import request from "supertest";
+
 
 describe("Sales unit", () => {
   let app: any;
@@ -11,8 +11,8 @@ describe("Sales unit", () => {
   let unitId: number;
 
   beforeAll(async () => {
-    await setupTestDB();
-
+    await resetDB();
+    app = await build();
     const admin = await prisma.user.upsert({
       where: { email: "admin@test.local" },
       update: {},
@@ -27,6 +27,7 @@ describe("Sales unit", () => {
     adminToken = generateAccessToken({
       userId: admin.id,
       role: admin.role,
+      email: admin.email
     });
 
     const unit = await prisma.unit.upsert({
@@ -42,12 +43,11 @@ describe("Sales unit", () => {
   });
 
   afterAll(async () => {
-    await closeTestDB();
+    await app.close();
+    await prisma.$disconnect();
   });
 
   it("POST /api/v1/sales creates a sale", async () => {
-    app = await build();
-
     const res = await request(app.server)
       .post("/api/v1/sales")
       .set("Authorization", `Bearer ${adminToken}`)
@@ -65,8 +65,7 @@ describe("Sales unit", () => {
   });
 
   it("GET /api/v1/sales returns list", async () => {
-    app = await build();
-
+  
     const res = await request(app.server)
       .get(`/api/v1/sales?unitId=${unitId}`)
       .set("Authorization", `Bearer ${adminToken}`);
