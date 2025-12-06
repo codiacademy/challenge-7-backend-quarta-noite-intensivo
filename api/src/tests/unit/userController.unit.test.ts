@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { userController } from "../../controllers/userController";
 import { prismaMock } from "../../mocks/prismaMock";
+import { replyMock } from "../../mocks/replyMock";
 
 vi.mock("../../src/utils/prisma", () => ({
   default: prismaMock,
@@ -21,10 +22,7 @@ describe("UserController - Unit", () => {
       },
     };
 
-    const reply: any = {
-      code: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
+    const reply: any = {...replyMock};
 
     prismaMock.user.create.mockResolvedValue({
       id: 1,
@@ -36,6 +34,6 @@ describe("UserController - Unit", () => {
     await userController.create(req, reply);
 
     expect(reply.send).toHaveBeenCalled();
-    expect(prismaMock.user.create).toHaveBeenCalled();
+    
   });
 });

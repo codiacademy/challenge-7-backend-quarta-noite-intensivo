@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -10,8 +11,10 @@ async function main() {
     data: { name: "Admin Codi", email: "admin@codi.test", password: passwordHash }
   });
 
-  const unit1 = await prisma.unit.create({ data: { name: "Unidade Belo Horizonte", address: "BH, Centro" }});
-  const unit2 = await prisma.unit.create({ data: { name: "Unidade São Paulo", address: "SP, Barra" }});
+  const unit1 = await prisma.unit.create({ data: { name: "Unidade Belo Horizonte", 
+    address: "BH, Centro" }});
+  const unit2 = await prisma.unit.create({ data: { name: "Unidade São Paulo",
+     address: "SP, Barra" }});
 
   const cat1 = await prisma.category.create({ data: { name: "Marketing" }});
   const cat2 = await prisma.category.create({ data: { name: "Infraestrutura" }});
@@ -19,9 +22,12 @@ async function main() {
 
   await prisma.sale.createMany({
     data: [
-      { unitId: unit1.id, clientName: "João", quantity: 1, unitPrice: 500, totalPrice: 500, date: new Date() },
-      { unitId: unit1.id, clientName: "Maria", quantity: 1, unitPrice: 800, totalPrice: 800, date: new Date() },
-      { unitId: unit2.id, clientName: "Pedro", quantity: 1, unitPrice: 700, totalPrice: 700, date: new Date() }
+      { unitId: unit1.id, clientName: "João", quantity: 1, unitPrice: 500, totalPrice: 500,
+         date: new Date() },
+      { unitId: unit1.id, clientName: "Maria", quantity: 1, unitPrice: 800, totalPrice: 800,
+         date: new Date() },
+      { unitId: unit2.id, clientName: "Pedro", quantity: 1, unitPrice: 700, totalPrice: 700,
+         date: new Date() }
     ]
   });
 

@@ -30,20 +30,100 @@ Construído com **Node.js + Fastify + TypeScript + Prisma + PostgreSQL**, seguin
 │   ├── schema.prisma
 │   └── seed.ts
 ├── src/
-│   ├── modules/
-│   │   ├── auth/
-│   │   ├── users/
-│   │   ├── units/
-│   │   ├── sales/
-│   │   ├── expenses/
-│   │   └── categories/
-│   ├── middlewares/
-│   ├── shared/
-│   │   ├── errors/
-│   │   └── utils/
-│   ├── routes/
-│   ├── server.ts
-│   └── app.ts
+│   app.ts
+│   server.ts
+│
+├───@types
+│       fastify.d.ts
+│
+├───auth
+│       authController.ts
+│       authGuard.ts
+│       authRoutes.ts
+│       authService.ts
+│       schemas.ts
+│       verifyToken.ts
+│
+├───constants
+│       roles.ts
+│
+├───controllers
+│       categoryController.ts
+│       expenseController.ts
+│       saleController.ts
+│       unitController.ts
+│       userController.ts
+│
+├───middlewares
+│       authenticate.ts
+│       authGlobal.ts
+│       autorizeRoles.ts
+│       errorHandler.ts
+│       hasRole.ts
+│       isSelforAdmin.ts
+│       rolesMiddleware.ts
+│
+├───mocks
+│       prismaMock.ts
+│
+├───plugins
+│       swagger.ts
+│
+├───repositories
+│       categoryRepository.ts
+│       expenseRepository.ts
+│       saleRepository.ts
+│       unitRepository.ts
+│       userRepository.ts
+│
+├───routes
+│       categoryRoutes.ts
+│       expenseRoutes.ts
+│       saleRoutes.ts
+│       unitRoutes.ts
+│       userRoutes.ts
+│
+├───schemas
+│       categorySchema.ts
+│       expenseSchema.ts
+│       saleSchema.ts
+│       unitSchema.ts
+│       userSchema.ts
+│
+├───services
+│       categoryService.ts
+│       expenseService.ts
+│       saleService.ts
+│       unitService.ts
+│       userService.ts
+│
+├───tests
+│   │   setup.ts
+│   │   tests-utils.ts
+│   │
+│   ├───e2e
+│   │       auth.e2e.test.ts
+│   │       categories.e2e.test.ts
+│   │       expenses.e2e.test.ts
+│   │       sales.e2e.test.ts
+│   │       units.e2e.test.ts
+│   │       users.e2e.test.ts
+│   │
+│   └───unit
+│           authService.unit.test.ts
+│           generateToken.unit.test.ts
+│           middlewares.unit.test.ts
+│           saleService.unit.test.ts
+│           tokenUtils.unit.test.ts
+│           userController.unit.test.ts
+│
+└───utils
+        comparePassword.ts
+        env.ts
+        generateToken.ts
+        hash.ts
+        prisma.ts
+│       
 ├── compose.yaml
 ├── Dockerfile
 ├── package.json
@@ -72,11 +152,11 @@ npm install
 cp .env.example .env
 ```
 
-### `.env.example`
+### `.env`
 ```
 NODE_ENV=development
 PORT=4000
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/<nome_do_banco>?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/codicash?schema=public"
 JWT_SECRET="sua_chave_super_secreta"
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d

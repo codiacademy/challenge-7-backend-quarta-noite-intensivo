@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 
 const PUBLIC_ROUTES = [
-  "/auth/login",
+  "/api/v1/auth",
   "/docs",
   "/docs/json",
 ];
@@ -21,9 +21,13 @@ export async function authGlobal(request: FastifyRequest, reply: FastifyReply) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
     
-    request.user = decoded as { id: number; email: string; role: string; };
+    request.user = {
+      id: decoded.id,
+      role: decoded.role,
+      email: decoded.email
+};
 
   } catch (err) {
     return reply.status(401).send({ error: "Token inválido" });

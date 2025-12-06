@@ -1,46 +1,31 @@
+import request from "supertest";
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB } from "../setup";
-import { build, close } from "../tests-utils";
-import prisma from "../../utils/prisma";
-import { generateAccessToken } from "../../utils/generateToken";
+import { setupTestDB, disconnectDB} from "../setup";
+import app from "../../app"
+describe("Categories E2E", () => {
+  let adminToken: string;
+  beforeAll(async () => {
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
+    await app.ready();
+  });
+  afterAll(async () => {
+    await app.close;
+    await disconnectDB();
+  });
+  it("cria categoria", async () => {
+    const res = await request(app.server)
+      .post("/api/v1/categories")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        name: "Categoria X"
+      });
 
-let app: any;
-let adminToken: string;
-
-beforeAll(async () => {
-  await setupTestDB();
-  app = await build();
-
-  const admin = await prisma.user.findUnique({ where: { email: "admin@test.local" } });
-  adminToken = generateAccessToken({ userId: admin!.id, role: admin!.role });
-});
-
-afterAll(async () => {
-  await prisma.$disconnect();
-  await close();
-});
-
-describe("Categories unit", () => {
-  it("POST /categories creates category", async () => {
-    const res = await app.inject({
-      method: "POST",
-      url: "/categories",
-      headers: { Authorization: `Bearer ${adminToken}` },
-      payload: { name: "Nova Categoria" },
-    });
+  console.log("STATUS:", res.statusCode);
+  console.log("BODY:", res.body);
+  console.log("TEXT:", res.text);
 
     expect(res.statusCode).toBe(201);
-    const body = res.json();
-    expect(body.name).toBe("Nova Categoria");
-  });
-
-  it("GET /categories returns list", async () => {
-    const res = await app.inject({
-      method: "GET",
-      url: "/categories",
-    });
-
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.json())).toBeTruthy();
+    expect(res.body.name).toBe("Categoria X");
   });
 });

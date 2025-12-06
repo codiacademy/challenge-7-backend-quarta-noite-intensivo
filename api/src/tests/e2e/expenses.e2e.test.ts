@@ -1,60 +1,66 @@
+import request from "supertest";
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB } from "../setup";
-import { build, close } from "../tests-utils";
-import prisma from "../../utils/prisma";
-import { generateAccessToken } from "../../utils/generateToken";
+import { setupTestDB, disconnectDB, prisma, build, close } from "../setup";
 
-let app: any;
-let adminToken: string;
-let unitId: number;
-let categoryId: number;
+describe("Expenses E2E", () => {
+  let app: any;
+  let adminToken: string;
+  let unitId: number;
+  let categoryId: number;
 
-beforeAll(async () => {
-  await setupTestDB();
-  app = await build();
+  beforeAll(async () => {
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
+    app = await build();
 
-  const admin = await prisma.user.findUnique({ where: { email: "admin@test.local" } });
-  adminToken = generateAccessToken({ userId: admin!.id, role: admin!.role });
-
-  const unit = await prisma.unit.findFirst();
-  unitId = unit!.id;
-  const category = await prisma.category.findFirst();
-  categoryId = category!.id;
-});
-
-afterAll(async () => {
-  await prisma.$disconnect();
-  await close();
-});
-
-describe("Expenses unit", () => {
-  it("POST /expenses creates an expense", async () => {
-    const res = await app.inject({
-      method: "POST",
-      url: "/expenses",
-      headers: { Authorization: `Bearer ${adminToken}` },
-      payload: {
-        unitId,
-        categoryId,
-        amount: 150,
-        description: "Teste despesa",
-        date: new Date().toISOString(),
-      },
+    const unit = await prisma.unit.create({
+      data: { name: "Unit Test", address: "Rua 1" }
     });
 
-    expect(res.statusCode).toBe(201);
-    const body = res.json();
-    expect(body).toHaveProperty("id");
-  });
-
-  it("GET /expenses returns list", async () => {
-    const res = await app.inject({
-      method: "GET",
-      url: `/expenses?unitId=${unitId}`,
-      headers: { Authorization: `Bearer ${adminToken}` },
+    const category = await prisma.category.create({
+      data: { name: "Category Test" }
     });
 
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.json())).toBeTruthy();
+    unitId = unit.id;
+    categoryId = category.id;
   });
+
+  afterAll(async () => {
+    await close(app);
+    await disconnectDB();
+  });
+
+  it("creates an expense", async () => {
+  const res = await request(app.server)
+    .post("/api/v1/expenses")
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({
+      unitId,
+      categoryId,
+      description: "Despesa teste",
+      amount: 75,
+      date: new Date().toISOString()
+    });
+
+
+
+
+console.log("STATUS:", res.statusCode);
+console.log("BODY:", res.body);
+console.log("TEXT:", res.text);
+
+  expect(res.statusCode).toBe(201);
+  expect(res.body).toHaveProperty("id");
+  expect(res.body.amount).toBe(75);
+});
+
+
+  it("lists expenses", async () => {
+  const res = await request(app.server)
+    .get("/api/v1/expenses")
+    .set("Authorization", `Bearer ${adminToken}`)
+  expect(res.statusCode).toBe(200);
+
+  expect(Array.isArray(res.body)).toBe(true);
+});
 });

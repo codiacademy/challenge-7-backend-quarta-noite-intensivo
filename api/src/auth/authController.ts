@@ -6,31 +6,22 @@ import { env } from "../utils/env";
 
 export class AuthService {
   async login(email: string, password: string) {
-    
     const user = await prisma.user.findUnique({ where: { email } });
-
     if (!user) 
       return null;
-
     const valid = await comparePassword(password, user.password);
-
     if (!valid) 
       return null;
-
     const { password: _, ...userSafe } = user;
-
     const accessToken = generateAccessToken({
       id: user.id,
       email: user.email,
       role: user.role,
     });
-
     const refreshToken = generateRefreshToken({ id: user.id,}); 
-    
 
     return { accessToken, refreshToken, user: userSafe };
   }
-
   async refresh(token: string) {
     try {
       const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as { id: number; email: string; role: string };
@@ -41,5 +32,4 @@ export class AuthService {
     }
   }
 }
-
 export const authService = new AuthService();

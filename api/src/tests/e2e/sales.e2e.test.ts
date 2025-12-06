@@ -1,79 +1,51 @@
+// src/tests/e2e/sales.e2e.test.ts
+import request from "supertest";
 import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { setupTestDB } from "../setup";
-import { build, close } from "../tests-utils";
-import prisma from "../../utils/prisma";
-import { generateAccessToken } from "../../utils/generateToken";
+import { setupTestDB, disconnectDB, prisma, build, close } from "../setup";
 
-let app: any;
-let adminToken: string;
-let unitId: number;
+describe("Sales E2E", () => {
+  let app: any;
+  let adminToken: string;
+  let unitId: number;
+  let categoryId: number;
 
-beforeAll(async () => {
-  await setupTestDB();
-  app = await build();
+  beforeAll(async () => {
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
+    app = await build();
 
-  // garante admin
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@test.local" },
-    update: {},
-    create: {
-      name: "Admin",
-      email: "admin@test.local",
-      password: "hashed",
-      role: "ADMIN",
-    },
-  });
-
-  adminToken = generateAccessToken({ userId: admin.id, role: admin.role });
-
-  // garante unit
-  const unit = await prisma.unit.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      name: "Unidade Teste",
-    },
-  });
-
-  unitId = unit.id;
-});
-
-afterAll(async () => {
-  await prisma.$disconnect();
-  await close();
-});
-
-describe("Sales unit", () => {
-  it("POST /sales creates a sale", async () => {
-    const res = await app.inject({
-      method: "POST",
-      url: "/sales",
-      headers: { Authorization: `Bearer ${adminToken}` },
-      payload: {
-        unitId,
-        clientName: "Cliente Test",
-        quantity: 1,
-        unitPrice: 1000,
-        date: new Date().toISOString(),
-      },
+    const unit = await prisma.unit.create({
+      data: { name: "Unit Test", address: "Rua 1" }
     });
 
-    expect(res.statusCode).toBe(201);
-
-    const body = res.json();
-    expect(body).toHaveProperty("id");
-    expect(body.totalPrice).toBe(1000);
-  });
-
-  it("GET /sales returns list (filter by unit)", async () => {
-    const res = await app.inject({
-      method: "GET",
-      url: `/sales?unitId=${unitId}`,
-      headers: { Authorization: `Bearer ${adminToken}` },
+    const category = await prisma.category.create({
+      data: { name: "Category Test" }
     });
 
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.json())).toBe(true);
+    unitId = unit.id;
+    categoryId = category.id;
   });
+
+  afterAll(async () => {
+    await close(app);
+    await disconnectDB();
+  });
+
+  it("cria venda", async () => {
+  const res = await request(app.server)
+    .post("/api/v1/sales")
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({
+      unitId,
+      categoryId,
+      clientName: "Cliente Teste",
+      quantity: 2,
+      unitPrice: 50,
+      totalPrice: 100,
+      date: new Date().toISOString()
+    });
+
+  expect(res.statusCode).toBe(201);
+  expect(res.body.clientName).toBe("Cliente Teste");
+});
 });

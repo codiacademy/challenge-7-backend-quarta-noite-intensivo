@@ -1,5 +1,4 @@
-// tests/middlewares.unit.test.ts
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import jwt from "jsonwebtoken";
 import { env } from "../../utils/env";
 import { hasRole } from "../../middlewares/hasRole";
@@ -11,7 +10,6 @@ describe("Middlewares unit", () => {
     const req: any = {};
     const reply: any = { status: (code: number) => ({ send: (v: any) => v }) };
     const out = await mw(req, reply);
-    // returns 401 response object
     expect(out).toBeDefined();
   });
 

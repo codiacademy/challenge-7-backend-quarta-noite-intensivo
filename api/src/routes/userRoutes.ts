@@ -5,8 +5,12 @@ import { isSelfOrAdmin } from ".././middlewares/isSelforAdmin";
 
 export default async function userRoutes(app: FastifyInstance) {
   app.post("/", { schema: { tags: ["Users"] } }, userController.create); // allow public or restrict by role
+  
   app.get("/", { preHandler: [hasRole("ADMIN")], schema: { tags: ["Users"] } }, userController.list);
+ 
   app.get("/:id", { preHandler: [isSelfOrAdmin()], schema: { tags: ["Users"] } }, userController.find);
+
   app.put("/:id", { preHandler: [isSelfOrAdmin()], schema: { tags: ["Users"] } }, userController.update);
+  
   app.delete("/:id", { preHandler: [hasRole("ADMIN")], schema: { tags: ["Users"] } }, userController.remove);
 }

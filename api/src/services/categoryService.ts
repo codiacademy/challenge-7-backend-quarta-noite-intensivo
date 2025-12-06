@@ -14,7 +14,8 @@ export class CategoryService {
 
   async get(id: number) {
     const c = await repo.findById(id);
-    if (!c) throw new Error("Categoria não encontrada");
+    if (!c) 
+      throw new Error("Categoria não encontrada");
     return c;
   }
 
