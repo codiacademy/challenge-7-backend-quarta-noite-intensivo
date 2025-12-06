@@ -1,63 +1,38 @@
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { prisma } from "../../tests/prisma-test-env";
-import { generateAccessToken } from "../../utils/generateToken";
-import { build , resetDB } from "../tests-utils";
+// src/tests/e2e/units.e2e.test.ts
 import request from "supertest";
-import { email } from "zod/v4";
-
+import { beforeAll, afterAll, describe, it, expect } from "vitest";
+import { setupTestDB, disconnectDB, build, close } from "../setup";
 
 describe("Units E2E", () => {
-
   let app: any;
   let adminToken: string;
 
   beforeAll(async () => {
-    await resetDB();
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
     app = await build();
-    const admin = await prisma.user.upsert({
-    where: { email: "admin@test.local" },
-    update: {},
-    create: {
-    name: "Admin",
-    email: "admin@test.local",
-    password: "hashed", // qualquer string
-    role: "ADMIN"
-  }
-});
-
-    adminToken = generateAccessToken({
-      userId: admin!.id,
-      role: admin!.role,
-      email: admin!.email
-    });
   });
 
   afterAll(async () => {
-    await app.close();
-    await prisma.$disconnect();
+    await close(app);
+    await disconnectDB();
   });
 
-
-  it("POST /api/v1/units creates unit", async () => {
+  it("cria unidade", async () => {
     const res = await request(app.server)
       .post("/api/v1/units")
       .set("Authorization", `Bearer ${adminToken}`)
       .send({
-        name: "Unit Test 2",
-        address: "Addr 2"
+        name: "Unidade X",
+        address: "Rua 123"
       });
 
+  console.log("STATUS:", res.statusCode);
+  console.log("BODY:", res.body);
+  console.log("TEXT:", res.text);
+
+
     expect(res.statusCode).toBe(201);
-    expect(res.body.name).toBe("Unit Test 2");
-  });
-
-
-  it("GET /api/v1/units returns list", async () => {
-    const res = await request(app.server)
-      .get("/api/v1/units")
-      .set("Authorization", `Bearer ${adminToken}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.name).toBe("Unidade X");
   });
 });

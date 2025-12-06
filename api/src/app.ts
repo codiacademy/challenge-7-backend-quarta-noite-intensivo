@@ -1,3 +1,4 @@
+import Fastify from "fastify";
 import SwaggerPlugin from "./plugins/swagger";
 import authRoutes from "./auth/authRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -6,22 +7,27 @@ import { unitRoutes } from "./routes/unitRoutes";
 import { expenseRoutes } from "./routes/expenseRoutes";
 import { categoryRoutes } from "./routes/categoryRoutes";
 import { authGlobal } from "./middlewares/authGlobal";
-import Fastify from "fastify";
+import cors from "@fastify/cors";
 import "dotenv/config";
 
-export function buildApp() {
-  const app = Fastify();
+const app = Fastify({ logger: false });
 
-  app.register(SwaggerPlugin);
-  app.register(authRoutes, { prefix: "/api/v1/auth" });
+app.register(cors, { origin: true });
+app.register(SwaggerPlugin);
 
-  app.addHook("preHandler", authGlobal);
+const prefix = "/api/v1";
 
-  app.register(userRoutes, { prefix: "/api/v1/users" });
-  app.register(saleRoutes, { prefix: "/api/v1/sales" });
-  app.register(unitRoutes, { prefix: "/api/v1/units" });
-  app.register(expenseRoutes, { prefix: "/api/v1/expenses" });
-  app.register(categoryRoutes, { prefix: "/api/v1/categories" });
+// hook global corrigido
+app.addHook("preHandler", async (req, reply) => {
+  if (req.url.startsWith(`${prefix}/auth`)) return;
+  return authGlobal(req, reply);
+});
 
-  return app;
-}
+app.register(unitRoutes, { prefix: `${prefix}/units` });
+app.register(saleRoutes, { prefix: `${prefix}/sales` });
+app.register(expenseRoutes, { prefix: `${prefix}/expenses` });
+app.register(categoryRoutes, { prefix: `${prefix}/categories` });
+app.register(userRoutes, { prefix: `${prefix}/users` });
+app.register(authRoutes, { prefix: `${prefix}/auth` });
+
+export default app;

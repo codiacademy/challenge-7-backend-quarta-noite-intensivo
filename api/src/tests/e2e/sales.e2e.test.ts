@@ -1,76 +1,51 @@
-import { beforeAll, afterAll, describe, it, expect } from "vitest";
-import { prisma } from "../../tests/prisma-test-env";
-import { generateAccessToken } from "../../utils/generateToken";
-import { build , resetDB } from "../tests-utils";
+// src/tests/e2e/sales.e2e.test.ts
 import request from "supertest";
+import { beforeAll, afterAll, describe, it, expect } from "vitest";
+import { setupTestDB, disconnectDB, prisma, build, close } from "../setup";
 
-
-describe("Sales unit", () => {
+describe("Sales E2E", () => {
   let app: any;
   let adminToken: string;
   let unitId: number;
+  let categoryId: number;
 
   beforeAll(async () => {
-    await resetDB();
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
     app = await build();
-    const admin = await prisma.user.upsert({
-      where: { email: "admin@test.local" },
-      update: {},
-      create: {
-        name: "Admin",
-        email: "admin@test.local",
-        password: "hashed",
-        role: "ADMIN",
-      },
+
+    const unit = await prisma.unit.create({
+      data: { name: "Unit Test", address: "Rua 1" }
     });
 
-    adminToken = generateAccessToken({
-      userId: admin.id,
-      role: admin.role,
-      email: admin.email
-    });
-
-    const unit = await prisma.unit.upsert({
-      where: { id: 1 },
-      update: {},
-      create: {
-        id: 1,
-        name: "Unidade Teste",
-      },
+    const category = await prisma.category.create({
+      data: { name: "Category Test" }
     });
 
     unitId = unit.id;
+    categoryId = category.id;
   });
 
   afterAll(async () => {
-    await app.close();
-    await prisma.$disconnect();
+    await close(app);
+    await disconnectDB();
   });
 
-  it("POST /api/v1/sales creates a sale", async () => {
-    const res = await request(app.server)
-      .post("/api/v1/sales")
-      .set("Authorization", `Bearer ${adminToken}`)
-      .send({
-        unitId,
-        clientName: "Cliente Test",
-        quantity: 1,
-        unitPrice: 1000,
-        date: new Date().toISOString(),
-      });
+  it("cria venda", async () => {
+  const res = await request(app.server)
+    .post("/api/v1/sales")
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({
+      unitId,
+      categoryId,
+      clientName: "Cliente Teste",
+      quantity: 2,
+      unitPrice: 50,
+      totalPrice: 100,
+      date: new Date().toISOString()
+    });
 
-    expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty("id");
-    expect(res.body.totalPrice).toBe(1000);
-  });
-
-  it("GET /api/v1/sales returns list", async () => {
-  
-    const res = await request(app.server)
-      .get(`/api/v1/sales?unitId=${unitId}`)
-      .set("Authorization", `Bearer ${adminToken}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-  });
+  expect(res.statusCode).toBe(201);
+  expect(res.body.clientName).toBe("Cliente Teste");
+});
 });

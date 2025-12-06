@@ -1,32 +1,43 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-
-export const prisma = new PrismaClient();
+// src/tests/setup.ts
+import { prisma } from "../utils/prisma";
+import app from "../app";
+import { generateAccessToken } from "../utils/generateToken";
 
 export async function setupTestDB() {
-  // Reseta completamente o banco
   await prisma.$executeRawUnsafe(`
-    TRUNCATE TABLE
-      "Expense",
-      "Sale",
-      "Unit",
-      "Category",
-      "User"
-    RESTART IDENTITY CASCADE;
+    TRUNCATE TABLE "Sale", "Expense", "Category", "Unit", "User" RESTART IDENTITY CASCADE;
   `);
-
-  // Cria usuário admin padrão
-  const passwordHash = await bcrypt.hash("123456", 10);
-
-  await prisma.user.create({
+  const admin = await prisma.user.create({
     data: {
       name: "Admin",
       email: "admin@admin.com",
-      password: passwordHash,
-      role: "ADMIN"
+      password: "123456",
+      role: "admin"
     }
   });
+
+   const adminToken = generateAccessToken({
+    id: admin.id,
+    email: admin.email,
+    role: admin.role
+  });
+
+  return {adminToken}
 }
+
+// app real
+export async function build() {
+  await app.ready();
+  return app;
+}
+
+export async function close(instance: any) {
+  try {
+    if (instance) await instance.close();
+  } catch {} 
+}
+
+export { prisma };
 
 export async function disconnectDB() {
   await prisma.$disconnect();

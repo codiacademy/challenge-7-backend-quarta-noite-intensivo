@@ -6,7 +6,7 @@ export const createSaleSchema = z.object({
   clientName: z.string().optional(),
   quantity: z.number().int().min(1).default(1),
   unitPrice: z.number().positive(),
-  date: z.string().optional()
+   date: z.string().datetime()
 });
 export const updateSaleSchema = createSaleSchema.partial();
 export type CreateSaleInput = z.infer<typeof createSaleSchema>;

@@ -1,8 +1,7 @@
+// src/tests/e2e/users.e2e.test.ts
 import request from "supertest";
-import { beforeAll, expect, afterAll, it } from "vitest";
-import {prisma} from "../../tests/prisma-test-env";
-import { generateAccessToken } from "../../utils/generateToken";
-import { build , resetDB } from "../tests-utils";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { setupTestDB, disconnectDB, build, close  } from "../setup";
 
 
 describe("Users E2E", () => {
@@ -10,39 +9,47 @@ describe("Users E2E", () => {
   let adminToken: string;
 
   beforeAll(async () => {
-    await resetDB();
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
     app = await build();
-
-   const admin = await prisma.user.upsert({
-    where: { email: "admin@test.local" },
-    update: {},
-    create: {
-    name: "Admin",
-    email: "admin@test.local",
-    password: "hashed", // qualquer string
-    role: "ADMIN"
-  }
-});
-
-    adminToken = generateAccessToken({
-      userId: admin!.id,
-      role: admin!.role,
-      email: admin!.email
-    });
-
-      
   });
 
   afterAll(async () => {
-    await app.close();
-    await prisma.$disconnect();
+    await close(app);
+    await disconnectDB();
   });
 
-  it("should list users", async () => {
+  it("lista usuários", async () => {
     const res = await request(app.server)
       .get("/api/v1/users")
       .set("Authorization", `Bearer ${adminToken}`);
 
+ console.log("STATUS:", res.statusCode);
+ console.log("BODY:", res.body);
+ console.log("TEXT:", res.text);
+
     expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it("cria usuário", async () => {
+    const res = await request(app.server)
+      .post("/api/v1/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        name: "Admin",
+        email: "admin@admin.com",
+        password: "123456",
+        role: "admin"
+      });
+
+  console.log("STATUS:", res.statusCode);
+  console.log("BODY:", res.body);
+  console.log("TEXT:", res.text);
+
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.email).toBe("test@user.com");
+    expect(res.body.id).toBeDefined();
   });
 });

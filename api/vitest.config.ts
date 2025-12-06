@@ -4,7 +4,7 @@ import path from "node:path";
 
 export default defineConfig({
   test: {
-    setupFiles: [path.resolve(__dirname, "src/tests/prisma-test-env.ts")],
+    setupFiles: [path.resolve(__dirname, "src/tests/setup.ts")],
     globals: true,
     environment: "node",
     coverage: {

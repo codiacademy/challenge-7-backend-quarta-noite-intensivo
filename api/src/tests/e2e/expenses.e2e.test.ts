@@ -1,67 +1,66 @@
-import { describe, beforeAll, afterAll, it, expect } from "vitest";
 import request from "supertest";
-import { build, resetDB } from "../tests-utils";
-import { prisma } from "../../tests/prisma-test-env";
-import { generateAccessToken } from "../../utils/generateToken";
-
-let app: any;
-let admin: any;
-let unit: any;
-let category: any;
-let adminToken: string;
+import { beforeAll, afterAll, describe, it, expect } from "vitest";
+import { setupTestDB, disconnectDB, prisma, build, close } from "../setup";
 
 describe("Expenses E2E", () => {
+  let app: any;
+  let adminToken: string;
+  let unitId: number;
+  let categoryId: number;
+
   beforeAll(async () => {
-    await resetDB();
+    const setup = await setupTestDB();
+    adminToken = setup.adminToken;
     app = await build();
 
-    admin = await prisma.user.findFirst({
-      where: { email: "admin@admin.com" }
+    const unit = await prisma.unit.create({
+      data: { name: "Unit Test", address: "Rua 1" }
     });
 
-    unit = await prisma.unit.create({
-      data: { name: "Default Unit" }
+    const category = await prisma.category.create({
+      data: { name: "Category Test" }
     });
 
-    category = await prisma.category.create({
-      data: { name: "Default Category" }
-    });
-
-    adminToken = generateAccessToken({
-      userId: admin.id,
-      role: admin.role,
-      email: admin.email
-    });
+    unitId = unit.id;
+    categoryId = category.id;
   });
 
   afterAll(async () => {
-    if (app) {
-      await app.close();
-    }
-    await prisma.$disconnect();
+    await close(app);
+    await disconnectDB();
   });
 
-  it("should create an expense", async () => {
-    const res = await request(app.server)
-      .post("/api/v1/expenses")
-      .set("Authorization", `Bearer ${adminToken}`)
-      .send({
-        unitId: unit.id,
-        categoryId: category.id,
-        value: 200,
-        date: new Date().toISOString()
-      });
+  it("creates an expense", async () => {
+  const res = await request(app.server)
+    .post("/api/v1/expenses")
+    .set("Authorization", `Bearer ${adminToken}`)
+    .send({
+      unitId,
+      categoryId,
+      description: "Despesa teste",
+      amount: 75,
+      date: new Date().toISOString()
+    });
 
-    expect(res.statusCode).toBe(201);
-    expect(res.body).toHaveProperty("id");
-  });
 
-  it("should list expenses", async () => {
-    const res = await request(app.server)
-      .get("/api/v1/expenses")
-      .set("Authorization", `Bearer ${adminToken}`);
 
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-  });
+
+console.log("STATUS:", res.statusCode);
+console.log("BODY:", res.body);
+console.log("TEXT:", res.text);
+
+  expect(res.statusCode).toBe(201);
+  expect(res.body).toHaveProperty("id");
+  expect(res.body.amount).toBe(75);
+});
+
+
+  it("lists expenses", async () => {
+  const res = await request(app.server)
+    .get("/api/v1/expenses")
+    .set("Authorization", `Bearer ${adminToken}`)
+  expect(res.statusCode).toBe(200);
+
+  expect(Array.isArray(res.body)).toBe(true);
+});
 });
