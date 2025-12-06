@@ -152,13 +152,12 @@ npm install
 cp .env.example .env
 ```
 
-### `.env.example`
+### `.env`
 ```
 NODE_ENV=development
 PORT=4000
-DATABASE_URL="postgresql://postgres:ADMIN123@localhost:5432/codicash?schema=public"
-JWT_SECRET=secreto123456
-JWT_REFRESH_SECRET=secretorefresh123456
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/codicash?schema=public"
+JWT_SECRET="sua_chave_super_secreta"
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
 ```
